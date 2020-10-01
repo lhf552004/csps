@@ -1,1 +1,1 @@
-This is CSPS API with JAVA.
+This is E-MES API with JAVA.
