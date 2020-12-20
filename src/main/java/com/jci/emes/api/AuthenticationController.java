@@ -2,6 +2,8 @@ package com.jci.emes.api;
 
 import com.jci.emes.models.AuthenticationRequest;
 import com.jci.emes.models.AuthenticationResponse;
+import com.jci.emes.models.User;
+import com.jci.emes.repository.UserRepository;
 import com.jci.emes.services.MyUserDetailService;
 import com.jci.emes.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +14,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Optional;
 
 @RestController
 public class AuthenticationController {
@@ -21,6 +26,9 @@ public class AuthenticationController {
 
     @Autowired
     private MyUserDetailService userDetailService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private JwtUtil jwtTokenUtil;
@@ -35,6 +43,7 @@ public class AuthenticationController {
         final UserDetails userDetails = userDetailService
                 .loadUserByUsername(authenticationRequest.getUsername());
         final String jwt = jwtTokenUtil.generateToken(userDetails);
-        return ResponseEntity.ok(new AuthenticationResponse(jwt));
+        final User user = userRepository.findByUserName(authenticationRequest.getUsername()).get();
+        return ResponseEntity.ok(new AuthenticationResponse(jwt, user.getId(), user.getUserName(), user.getGivenName(), user.getLastName()));
     }
 }
